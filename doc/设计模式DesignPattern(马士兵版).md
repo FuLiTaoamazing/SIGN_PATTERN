@@ -967,5 +967,675 @@ class Tank1 implements Moveable1 {
 }
 ```
 
-**上述代码我们调用的是代理对象的move方法实际执行的是invocationHanlder接口里面的invoke对象这是为什么呢?**
+**上述代码我们调用的是代理对象的move方法实际执行的是invocationHanlder接口里面的invoke方法这是为什么呢?**
 
+```java
+System.getProperties().put("jdk.proxy.ProxyGenerator.saveGeneratedFiles", "true");
+```
+
+**动态生成的代理类**
+
+```java
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package com.flt.proxy.where;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
+
+final class $Proxy0 extends Proxy implements Moveable {
+    private static Method m1;
+    private static Method m3;
+    private static Method m2;
+    private static Method m0;
+
+    public $Proxy0(InvocationHandler var1) throws  {
+        super(var1);
+    }
+
+    public final boolean equals(Object var1) throws  {
+        try {
+            return (Boolean)super.h.invoke(this, m1, new Object[]{var1});
+        } catch (RuntimeException | Error var3) {
+            throw var3;
+        } catch (Throwable var4) {
+            throw new UndeclaredThrowableException(var4);
+        }
+    }
+
+    public final void move() throws  {
+        try {
+            super.h.invoke(this, m3, (Object[])null);
+        } catch (RuntimeException | Error var2) {
+            throw var2;
+        } catch (Throwable var3) {
+            throw new UndeclaredThrowableException(var3);
+        }
+    }
+
+    public final String toString() throws  {
+        try {
+            return (String)super.h.invoke(this, m2, (Object[])null);
+        } catch (RuntimeException | Error var2) {
+            throw var2;
+        } catch (Throwable var3) {
+            throw new UndeclaredThrowableException(var3);
+        }
+    }
+
+    public final int hashCode() throws  {
+        try {
+            return (Integer)super.h.invoke(this, m0, (Object[])null);
+        } catch (RuntimeException | Error var2) {
+            throw var2;
+        } catch (Throwable var3) {
+            throw new UndeclaredThrowableException(var3);
+        }
+    }
+
+    static {
+        try {
+            m1 = Class.forName("java.lang.Object").getMethod("equals", Class.forName("java.lang.Object"));
+            m3 = Class.forName("com.flt.proxy.where.Moveable").getMethod("move");
+            m2 = Class.forName("java.lang.Object").getMethod("toString");
+            m0 = Class.forName("java.lang.Object").getMethod("hashCode");
+        } catch (NoSuchMethodException var2) {
+            throw new NoSuchMethodError(var2.getMessage());
+        } catch (ClassNotFoundException var3) {
+            throw new NoClassDefFoundError(var3.getMessage());
+        }
+    }
+}
+
+```
+
+### 12、迭代器-Iterator
+
+**迭代器是为了统一了Java中的Collections容器实现类的遍历方式**
+
+ **详情查看Iterator的源码**
+
+### 13、访问者-Visitor
+
+![image-20220223165119740](设计模式DesignPattern(马士兵版).assets/image-20220223165119740.png)
+
+当系统中存在类型数量稳定（固定）的一类数据结构时，可以使用访问者模式方便地实现对该类型所有数据结构的不同操作，而又不会对数据产生任何副作用（脏数据）。
+
+简而言之，就是当对集合中的不同类型数据（类型数量稳定）进行多种操作时，使用访问者模式。
+
+通常在以下情况可以考虑使用访问者（Visitor）模式。
+
+1. 对象结构相对稳定，但其操作算法经常变化的程序。
+2. 对象结构中的对象需要提供多种不同且不相关的操作，而且要避免让这些操作的变化影响对象的结构。
+3. 对象结构包含很多类型的对象，希望对这些对象实施一些依赖于其具体类型的操作。
+
+```java
+public class VisitorPattern {
+    public static void main(String[] args) {
+        ObjectStructure os = new ObjectStructure();
+        os.add(new ConcreteElementA());
+        os.add(new ConcreteElementB());
+        Visitor visitor = new ConcreteVisitorA();
+        os.accept(visitor);
+        System.out.println("------------------------");
+        visitor = new ConcreteVisitorB();
+        os.accept(visitor);
+    }
+}
+//抽象访问者
+interface Visitor {
+    void visit(ConcreteElementA element);
+    void visit(ConcreteElementB element);
+}
+//具体访问者A类
+class ConcreteVisitorA implements Visitor {
+    public void visit(ConcreteElementA element) {
+        System.out.println("具体访问者A访问-->" + element.operationA());
+    }
+    public void visit(ConcreteElementB element) {
+        System.out.println("具体访问者A访问-->" + element.operationB());
+    }
+}
+//具体访问者B类
+class ConcreteVisitorB implements Visitor {
+    public void visit(ConcreteElementA element) {
+        System.out.println("具体访问者B访问-->" + element.operationA());
+    }
+    public void visit(ConcreteElementB element) {
+        System.out.println("具体访问者B访问-->" + element.operationB());
+    }
+}
+//抽象元素类
+interface Element {
+    void accept(Visitor visitor);
+}
+//具体元素A类
+class ConcreteElementA implements Element {
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+    public String operationA() {
+        return "具体元素A的操作。";
+    }
+}
+//具体元素B类
+class ConcreteElementB implements Element {
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+    public String operationB() {
+        return "具体元素B的操作。";
+    }
+}
+//对象结构角色
+class ObjectStructure {
+    private List<Element> list = new ArrayList<Element>();
+    public void accept(Visitor visitor) {
+        Iterator<Element> i = list.iterator();
+        while (i.hasNext()) {
+            ((Element) i.next()).accept(visitor);
+        }
+    }
+    public void add(Element element) {
+        list.add(element);
+    }
+    public void remove(Element element) {
+        list.remove(element);
+    }
+}
+```
+
+### 14、构建器-Builder
+
+**分离复杂对象的构建和表示**
+
+**同样的构建过程可以构建不同的对象**
+
+![image-20220223171959181](设计模式DesignPattern(马士兵版).assets/image-20220223171959181.png)
+
+```java
+package com.flt.builder;
+
+public class Person {
+    private int age;
+    private String name;
+    private int height;
+    private double weight;
+    private String idCard;
+
+    private Person() {
+
+    }
+
+    public static class PersonBuilder {
+        private Person person = new Person();
+
+        public PersonBuilder basicInfo(int age, String name, int height) {
+            person.age = age;
+            person.name = name;
+            person.height = height;
+            return this;
+        }
+
+        public PersonBuilder builderWeight(double weight) {
+            person.weight = weight;
+            return this;
+        }
+
+        public PersonBuilder builderIdCard(String idCard) {
+            person.idCard = idCard;
+            return this;
+        }
+
+        public Person build() {
+            return person;
+        }
+    }
+}
+```
+
+**在构建一个人的时候一般只需要基本信息有时候又需要更多的信息这时候就可以使用构建者模式**
+
+```java
+ public static void main(String[] args) {
+        Person person = new PersonBuilder().basicInfo(22, "flt", 180).builderIdCard("4000501041041").build();
+        System.out.println(person);
+    }
+```
+
+**answer**
+
+```base
+Person{age=22, name='flt', height=180, weight=0.0, idCard='4000501041041'}
+```
+
+```java
+  public static void main(String[] args) {
+        Person person = new PersonBuilder().basicInfo(22, "flt", 180).builderIdCard("4000501041041").builderWeight(90.6).build();
+        System.out.println(person);
+    }
+```
+
+**answer**
+
+```base
+Person{age=22, name='flt', height=180, weight=90.6, idCard='4000501041041'}
+```
+
+### 15、适配器-Adapter
+
+
+
+### 16、桥接模式-Bridge
+
+**在现实生活中，某些类具有两个或多个维度的变化，如图形既可按形状分，又可按颜色分。如何设计类似于 Photoshop 这样的软件，能画不同形状和不同颜色的图形呢？如果用继承方式，m 种形状和 n 种颜色的图形就有 m×n 种，不但对应的子类很多，而且扩展困难。**
+
+> 桥接（Bridge）模式的定义如下：将抽象与实现分离，使它们可以独立变化。它是用组合关系代替继承关系来实现，从而降低了抽象和实现这两个可变维度的耦合度。
+>
+> 通过上面的讲解，我们能很好的感觉到桥接模式遵循了里氏替换原则和依赖倒置原则，最终实现了开闭原则，对修改关闭，对扩展开放。这里将桥接模式的优缺点总结如下。
+>
+> 桥接（Bridge）模式的优点是：
+>
+> - 抽象与实现分离，扩展能力强
+> - 符合开闭原则
+> - 符合合成复用原则
+> - 其实现细节对客户透明
+>
+>
+> 缺点是：由于聚合关系建立在抽象层，要求开发者针对抽象化进行设计与编程，能正确地识别出系统中两个独立变化的维度，这增加了系统的理解与设计难度。
+>
+> #### 1. 模式的结构
+>
+> 桥接（Bridge）模式包含以下主要角色。
+>
+> 1. 抽象化（Abstraction）角色：定义抽象类，并包含一个对实现化对象的引用。
+> 2. 扩展抽象化（Refined Abstraction）角色：是抽象化角色的子类，实现父类中的业务方法，并通过组合关系调用实现化角色中的业务方法。
+> 3. 实现化（Implementor）角色：定义实现化角色的接口，供扩展抽象化角色调用。
+> 4. 具体实现化（Concrete Implementor）角色：给出实现化角色接口的具体实现。
+
+**拿包的例子来讲 一个包可能是钱包或者是挎包 他有可能又是红色或者是蓝色，在这里这个具体的事务有两个维度 且这两个维度上都能进行扩展**
+
+**定义抽象化角色 bag**
+
+```java
+package com.flt.bridge;
+
+public abstract class Bag {
+    protected Color color;
+
+    public Bag(Color color) {
+        this.color = color;
+    }
+
+    abstract String getName();
+}
+
+```
+
+**扩展抽象化角色-Wallet**
+
+```java
+package com.flt.bridge;
+
+public class Wallet extends Bag {
+
+    public Wallet(Color color) {
+        super(color);
+    }
+
+    @Override
+    String getName() {
+        return color.getColor() + " Wallet";
+    }
+}
+```
+
+**扩展抽象化角色-HandBag**
+
+```java
+package com.flt.bridge;
+
+public class Handbag extends Bag {
+
+    public Handbag(Color color) {
+        super(color);
+    }
+
+    @Override
+    String getName() {
+        return color.getColor() + " Handbag";
+    }
+}
+```
+
+**实现化-Color**
+
+```java
+package com.flt.bridge;
+
+public interface Color {
+    String getColor();
+}
+```
+
+**具体实现化-Red**
+
+```java
+package com.flt.bridge;
+
+public class Red implements Color {
+    @Override
+    public String getColor() {
+        return "Red";
+    }
+}
+```
+
+**具体实现化-Yellow**
+
+```java
+package com.flt.bridge;
+
+public class Yellow  implements Color{
+    @Override
+    public String getColor() {
+        return "Yellow";
+    }
+}
+```
+
+**测试代码:**
+
+```java
+package com.flt.bridge;
+
+public class Main {
+    public static void main(String[] args) {
+        Red red = new Red();
+        Yellow yellow = new Yellow();
+        Bag redWallet=new Wallet(red);
+        Bag yellowWallet=new Wallet(yellow);
+        System.out.println(yellowWallet.getName());
+        System.out.println(redWallet.getName());
+    }
+}
+```
+
+### 17、命令模式-Command
+
+**Command模式主要是要实现一个exec() 和undo()就是执行以及回退的操作**
+
+![image-20220225164429691](设计模式DesignPattern(马士兵版).assets/image-20220225164429691.png)
+
+**Command**
+
+```java
+package com.flt.command;
+
+public abstract class Command {
+    protected Content content;
+
+    public Command(Content content) {
+        this.content = content;
+    }
+
+    public abstract void exec();
+
+    public abstract void undo();
+}
+
+```
+
+**InsertCommand**
+
+```java
+package com.flt.command;
+
+public class InsertCommand extends Command {
+    private String insertStr = "Fulitao is amazing";
+
+    public InsertCommand(Content content) {
+        super(content);
+    }
+
+    @Override
+    public void exec() {
+        content.content = content.content + insertStr;
+    }
+
+    @Override
+    public void undo() {
+        content.content = content.content.substring(0, content.content.length() - insertStr.length());
+    }
+}
+
+```
+
+**CopyCommand**
+
+```java
+package com.flt.command;
+
+public class CopyCommand extends Command {
+    public CopyCommand(Content content) {
+        super(content);
+    }
+
+    @Override
+    public void exec() {
+        content.content = content.content + content.content;
+    }
+
+    @Override
+    public void undo() {
+        content.content = content.content.substring(0, content.content.length() / 2);
+    }
+}
+
+```
+
+**Test**
+
+```java
+package com.flt.command;
+
+public class Main {
+    public static void main(String[] args) {
+        Content content = new Content("hello !");
+        Command command=new CopyCommand(content);
+        command.exec();
+        System.out.println(content.content);
+        command.undo();
+        System.out.println(content.content);
+    }
+}
+```
+
+**Content**
+
+```java
+package com.flt.command;
+
+public class Content {
+    public String content;
+
+    public Content(String content) {
+        this.content = content;
+    }
+}
+```
+
+### 18、原型模式-ProtoType
+
+**JDK知道的Object.clone()就是原型模式：原型模式是指一个对象属性相同地址不同如何快速给对象赋值**
+
+### 19、备忘录-Memento
+
+**记录状态 便于回滚**
+
+**类似于快照**
+
+### 20、模板函数-TemplateMethod
+
+**在执行顺序固定的时候 实现不同的时候，可以使用模板方法。例如打开一个HTTP请求的Code你先设置请求头、在到URL、在打打开链接获取响应这个顺序都是固定的，但是里面的实现都可能不同这时候就是使用了模板方法**
+
+```java
+package com.flt.templatemethod;
+
+public class Main {
+    public static void main(String[] args) {
+        Template template=new Concrete1();
+        template.concreteMethod();
+    }
+}
+
+abstract class Template{
+    public void concreteMethod(){
+        method1();
+        method2();
+        method3();
+    }
+
+    public abstract void method1();
+    public abstract void method2();
+    public abstract void method3();
+}
+
+class Concrete1 extends Template{
+    @Override
+    public void method1() {
+        System.out.println("Concrete1 method1");
+    }
+
+    @Override
+    public void method2() {
+        System.out.println("Concrete1 method2");
+    }
+
+    @Override
+    public void method3() {
+        System.out.println("Concrete1 method3");
+    }
+}
+```
+
+### 21、状态-state
+
+**当一个类的方法已经固定不准备给他扩展，只是每个method所表现出来的跟这个对象的状态有关就可以使用state模式**
+
+```java
+package com.flt.state;
+
+import javax.swing.plaf.nimbus.State;
+
+public class MM {
+
+    private MMState concurrentState;
+
+    public MM(MMState concurrentState) {
+        this.concurrentState = concurrentState;
+    }
+
+    public void smile() {
+        concurrentState.smile();
+    }
+
+    public void cry() {
+        concurrentState.cry();
+    }
+
+    public void say() {
+        concurrentState.say();
+    }
+}
+```
+
+```java
+package com.flt.state;
+
+public abstract class MMState {
+    public abstract void smile();
+
+    public abstract void cry();
+
+    public abstract void say();
+
+}
+```
+
+### **总结**
+
+![image-20220228150756703](设计模式DesignPattern(马士兵版).assets/image-20220228150756703.png)
+
+**面向对象的六大原则:**
+
+1、可维护性Maintainablility
+
+修改功能，需要改动的地方越少，可维护性越好
+
+2、可复用性Reusability
+
+代码可以被重复利用
+
+写出自己的总结类库
+
+3、可扩展性Extensibility/Scalability
+
+添加功能无需修改源代码
+
+4、灵活性flexibility/mobility/adpability
+
+代码接口可以灵活调用
+
+**单一职责-Single Responsibility Principle**
+
+一个类别太大，别太累，负责单一功能
+
+高内聚，低耦合
+
+**开闭原则-Open-Closed Principle**
+
+对扩展进行开放，对修改关闭
+
+尽量不修改原来的代码的情况下进行扩展
+
+抽象化、多态是开闭原则的关键
+
+**里式替换原则**
+
+所有使用到父类的地方，必须能够透明的使用子类对象
+
+**依赖倒置原则-Dependcy Inversion Principle**
+
+依赖抽象，而不是依赖聚体
+
+面向抽象编程
+
+**接口隔离原则-Interface Segregation Principle**
+
+每一个接口应该承担独立的角色，不该干自己不干干的事情
+
+FlyAble Runable 不该合二为一
+
+避免子类对象实现不需要实现的方法
+
+需要对客户提供接口的时候，只需要暴露最小的接口
+
+**迪米特法则**
+
+不要和陌生的人说话
+
+非陌生的人包括以下几类：
+
+当前对象本身
+
+以参数传入当前方法的对象
+
+当前对象的成员对象
+
+当前对象所创建的对象
